@@ -1,64 +1,93 @@
 # ESPUI
 
-A lightweight and modular UI framework for **ESP32 + MicroPython**.
+### Lightweight UI Framework for ESP32 + MicroPython
 
-ESPUI makes it easier to build applications for ESP32 without dealing directly with low-level display drawing, keypad scanning, focus management, layouts, scrolling, and screen navigation.
+ESPUI is a lightweight UI framework designed for **ESP32 + MicroPython**.
 
-> 🚧 ESPUI is currently under development.
+It provides a simple way to build graphical interfaces for small displays such as OLED screens without manually implementing:
 
-## Features
+* Display drawing
+* Widget positioning
+* Layout management
+* Scrolling
+* Focus navigation
+* Keyboard input
+* Screen navigation
+* Sidebar navigation
+* Notifications
+* Dialogs
+* UI events
 
-* 🖥️ Display abstraction
-* ⌨️ 4×4 matrix keypad support
-* 📱 Screen-based UI
-* 🧩 Widget system
-* 📦 Containers
-* 📐 Vertical, horizontal, and grid layouts
-* 📜 Scrollable views
-* 🎯 Focus management
-* 🔄 Screen navigation
-* 🔔 Notifications
-* 💬 Dialogs
-* 🎛️ Buttons
-* ☑️ Checkboxes
-* 🔘 Toggles
-* 🎚️ Sliders
-* 📊 Progress bars
-* 🏷️ Labels
-* ⚡ Event system
-* 🔌 Hardware abstraction
+ESPUI is designed for small embedded devices where memory, processing power, and display space are limited.
+
+> **Version:** 1.1
+> **Platform:** ESP32
+> **Language:** MicroPython
+> **Status:** Experimental / In Development
 
 ---
 
-## Architecture
+# Features
 
-ESPUI is designed in layers:
-
-```text
-┌─────────────────────┐
-│        App          │
-├─────────────────────┤
-│       Widgets       │
-├─────────────────────┤
-│      UI Core        │
-├─────────────────────┤
-│  Display / Input    │
-├─────────────────────┤
-│      Hardware       │
-└─────────────────────┘
-```
-
-The UI layer does not need to know how the display or input hardware works internally.
-
-This makes it possible to add support for different displays and controllers in the future.
+* Lightweight and modular
+* Designed for ESP32 + MicroPython
+* SSD1306-compatible display abstraction
+* 4×4 matrix keypad support
+* Screen-based application structure
+* Widget system
+* Containers
+* Vertical layouts
+* Horizontal layouts
+* Grid layouts
+* Scrollable content
+* Automatic scrollbar
+* Focus management
+* Automatic focus scrolling
+* Nested containers
+* Header
+* Footer
+* Sidebar
+* Notifications
+* Dialogs
+* Event system
+* Button controls
+* Toggle controls
+* Checkbox controls
+* Slider controls
+* Progress bars
+* Labels
+* Separators
+* Long-text truncation
+* Text wrapping
+* Display clipping
+* Screen navigation stack
 
 ---
 
-## Installation
+# Requirements
 
-Copy `espui.py` to your MicroPython device.
+ESPUI is designed for:
 
-Example:
+* ESP32
+* MicroPython
+* A compatible display driver
+* Optional 4×4 matrix keypad
+
+A typical setup can use:
+
+* SSD1306 OLED 128×64
+* `ssd1306.py`
+* 4×4 matrix keypad
+
+ESPUI itself does not require any external Python package beyond the MicroPython modules required by your hardware and display driver.
+
+---
+
+# Installation
+
+Copy `espui.py` to your ESP32.
+
+A simple project can look like:
 
 ```text
 ESP32/
@@ -68,7 +97,7 @@ ESP32/
 └── ssd1306.py
 ```
 
-Then import it:
+Then import ESPUI:
 
 ```python
 from espui import *
@@ -78,13 +107,14 @@ from espui import *
 
 # Quick Start
 
-## 1. Create the Display
+## Display
 
 Example using an SSD1306 OLED:
 
 ```python
 from machine import Pin, I2C
 import ssd1306
+
 from espui import *
 
 i2c = I2C(
@@ -106,11 +136,15 @@ display = Display(
 )
 ```
 
+`Display` acts as an abstraction layer between ESPUI and the actual display driver.
+
+It also provides clipping, text fitting, wrapping, rectangles, lines and other drawing functions.
+
 ---
 
-## 2. Create the Controller
+# Input
 
-Example using a 4×4 matrix keypad:
+ESPUI includes a 4×4 matrix keypad controller.
 
 ```python
 keypad = Keypad4x4(
@@ -119,18 +153,34 @@ keypad = Keypad4x4(
 )
 ```
 
-Default keypad layout:
+Default keypad:
 
 ```text
-1  2  3  A
-4  5  6  B
-7  8  9  C
-*  0  #  D
+┌───┬───┬───┬───┐
+│ 1 │ 2 │ 3 │ A │
+├───┼───┼───┼───┤
+│ 4 │ 5 │ 6 │ B │
+├───┼───┼───┼───┤
+│ 7 │ 8 │ 9 │ C │
+├───┼───┼───┼───┤
+│ * │ 0 │ # │ D │
+└───┴───┴───┴───┘
 ```
+
+The keypad supports:
+
+* Key press
+* Key release
+* Key hold
+* Key repeat
+
+The controller also provides configurable hold and repeat timing.
 
 ---
 
-## 3. Initialize ESPUI
+# Creating the UI
+
+Create the UI core:
 
 ```python
 ui = UI()
@@ -143,221 +193,327 @@ ui.begin(
 
 ---
 
-# Creating a Screen
+# Screens
 
-A screen is the main container for an application page.
+A `Screen` represents a complete UI page.
 
 ```python
 home = Screen("Home")
+```
 
+Add a header:
+
+```python
 home.header("ESP32 Control")
+```
+
+Add a footer:
+
+```python
 home.footer("2/8 Move   A OK   B Back")
 ```
 
-Show it:
+Display the screen:
 
 ```python
 ui.show(home)
 ```
 
-Run the UI:
+Start the UI:
 
 ```python
 ui.run()
+```
+
+---
+
+# Header
+
+Enable or change the header:
+
+```python
+home.header("ESP32 Control")
+```
+
+Disable it:
+
+```python
+home.hide_header()
+```
+
+The header is separated from the content area so normal widgets are clipped below it.
+
+---
+
+# Footer
+
+Create a footer:
+
+```python
+home.footer("2/8 Move   A OK   B Back")
+```
+
+Hide it:
+
+```python
+home.hide_footer()
 ```
 
 ---
 
 # Widgets
 
-## Label
+ESPUI currently provides several basic widgets.
+
+| Widget        | Focusable | Main purpose      |
+| ------------- | --------: | ----------------- |
+| `Label`       |        No | Display text      |
+| `Button`      |       Yes | Trigger actions   |
+| `Toggle`      |       Yes | On/off value      |
+| `Checkbox`    |       Yes | Boolean checkbox  |
+| `Slider`      |       Yes | Numeric value     |
+| `ProgressBar` |        No | Display progress  |
+| `Separator`   |        No | Visual separation |
+
+Focusable widgets participate in the screen focus system. The current implementation marks Button, Toggle and Slider as focusable, while Checkbox inherits that behavior from Toggle.
+
+---
+
+# Label
+
+A label displays text.
 
 ```python
 label = Label("Hello ESP32")
 
-home.content.add(label)
+home.add(label)
 ```
 
-## Button
+Alignment can be changed:
+
+```python
+Label(
+    "Centered",
+    align="center"
+)
+```
+
+Available alignments:
+
+```text
+left
+center
+right
+```
+
+You can also change the text color:
+
+```python
+Label(
+    "Status: OK",
+    text_color=1
+)
+```
+
+---
+
+# Button
+
+Create a button:
 
 ```python
 button = Button("WiFi")
 
-home.content.add(button)
+home.add(button)
 ```
 
-## Toggle
+Buttons are focusable and respond to `OK`.
 
-```python
-wifi = Toggle("WiFi", True)
-
-home.content.add(wifi)
-```
-
-## Checkbox
-
-```python
-debug = Checkbox("Debug Mode")
-
-home.content.add(debug)
-```
-
-## Slider
-
-```python
-volume = Slider("Volume", 50)
-
-home.content.add(volume)
-```
-
-## Progress Bar
-
-```python
-progress = ProgressBar(
-    "Download",
-    75
-)
-
-home.content.add(progress)
-```
-
----
-
-# Events
-
-Widgets can emit events.
-
-Example:
-
-```python
-wifi_button = Button("WiFi")
-
-wifi_button.on(
-    Event.CLICK,
-    lambda: print("WiFi clicked")
-)
-
-home.content.add(wifi_button)
-```
-
-Available events include:
+The focused button uses a different visual style:
 
 ```text
-KEY_PRESS
-KEY_RELEASE
-KEY_HOLD
-KEY_REPEAT
-
-CLICK
-CHANGE
-FOCUS
-BLUR
-
-UP
-DOWN
-LEFT
-RIGHT
-OK
-BACK
-MENU
+> WiFi <
 ```
+
+while an unfocused button is displayed with an outline. Long button text is automatically fitted to the available space.
 
 ---
 
-# Screen Navigation
+# Button Events
 
-ESPUI includes a navigation stack.
-
-## Push a new screen
+Buttons emit `Event.CLICK`.
 
 ```python
-settings = Screen("Settings")
+button.on(
+    Event.CLICK,
+    lambda: print("Button clicked")
+)
+```
+
+For larger functions:
+
+```python
+def on_wifi():
+    print("WiFi selected")
 
 button.on(
     Event.CLICK,
-    lambda: ui.push(settings)
+    on_wifi
 )
 ```
-
-The current screen is kept in the navigation stack.
-
-```text
-Home
-  ↓
-Settings
-```
-
-## Go back
-
-```python
-ui.back()
-```
-
-This returns to the previous screen.
-
-```text
-Settings
-   ↓
-Home
-```
-
-## Replace the current screen
-
-```python
-ui.show(home)
-```
-
-`show()` directly changes the current screen.
 
 ---
 
-# Multiple Screens Example
+# Toggle
+
+Create a toggle:
 
 ```python
-home = Screen("Home")
-wifi = Screen("WiFi")
-settings = Screen("Settings")
-
-home.header("Home")
-wifi.header("WiFi")
-settings.header("Settings")
-
-wifi_button = Button("WiFi")
-settings_button = Button("Settings")
-
-home.content.add(wifi_button)
-home.content.add(settings_button)
-
-wifi_button.on(
-    Event.CLICK,
-    lambda: ui.push(wifi)
+wifi = Toggle(
+    "WiFi",
+    True
 )
 
-settings_button.on(
-    Event.CLICK,
-    lambda: ui.push(settings)
-)
-
-ui.show(home)
-ui.run()
+home.add(wifi)
 ```
 
-Navigation:
+Change its value:
+
+```python
+wifi.set_value(True)
+wifi.set_value(False)
+```
+
+Toggle it manually:
+
+```python
+wifi.toggle()
+```
+
+A Toggle emits `Event.CHANGE` when its value changes:
+
+```python
+wifi.on(
+    Event.CHANGE,
+    lambda value: print("WiFi:", value)
+)
+```
+
+Pressing `OK` while the Toggle is focused changes its state.
+
+---
+
+# Checkbox
+
+Checkbox is based on Toggle:
+
+```python
+debug = Checkbox(
+    "Debug Mode"
+)
+
+home.add(debug)
+```
+
+It supports the same basic value operations and `CHANGE` event.
+
+```python
+debug.on(
+    Event.CHANGE,
+    lambda value: print("Debug:", value)
+)
+```
+
+---
+
+# Slider
+
+Create a slider:
+
+```python
+volume = Slider(
+    "Volume",
+    50
+)
+
+home.add(volume)
+```
+
+With custom limits:
+
+```python
+brightness = Slider(
+    "Brightness",
+    80,
+    0,
+    100
+)
+```
+
+Change the value:
+
+```python
+brightness.set_value(60)
+```
+
+The slider responds to:
 
 ```text
-Home
-├── WiFi
-│   └── Back → Home
-│
-└── Settings
-    └── Back → Home
+LEFT  → decrease
+RIGHT → increase
+```
+
+It emits `Event.CHANGE` when the value changes.
+
+---
+
+# ProgressBar
+
+Create a progress bar:
+
+```python
+progress = ProgressBar(75)
+
+home.add(progress)
+```
+
+Change it:
+
+```python
+progress.set_value(90)
+```
+
+The value is automatically limited to:
+
+```text
+0 - 100
+```
+
+---
+
+# Separator
+
+A separator can visually divide sections:
+
+```python
+home.add(
+    Separator()
+)
+```
+
+Custom height:
+
+```python
+home.add(
+    Separator(height=8)
+)
 ```
 
 ---
 
 # Containers
 
-Containers allow widgets to be grouped together.
+Containers allow multiple widgets to be grouped together.
 
 ```python
 container = Container()
@@ -374,20 +530,26 @@ container.add(
     Button("Saved Networks")
 )
 
-home.content.add(container)
+home.add(container)
 ```
+
+Containers can contain other containers, allowing nested UI structures. The focus system recursively searches nested containers for focusable widgets.
 
 ---
 
 # Layouts
 
-ESPUI supports several basic layouts.
+ESPUI provides three basic layouts.
 
-### Vertical
+## Vertical
 
 ```python
-container.layout_type = "vertical"
+container = Container(
+    layout="vertical"
+)
 ```
+
+Result:
 
 ```text
 Button
@@ -396,95 +558,241 @@ Button
 Button
 ```
 
-### Horizontal
+---
+
+## Horizontal
 
 ```python
-container.layout_type = "horizontal"
+container = Container(
+    layout="horizontal"
+)
 ```
+
+Result:
 
 ```text
 Button   Button   Button
 ```
 
-### Grid
+---
+
+## Grid
 
 ```python
-container.layout_type = "grid"
+container = Container(
+    layout="grid"
+)
 ```
 
+On a sufficiently wide display:
+
 ```text
-Button  Button
-Button  Button
-Button  Button
+Button   Button
+Button   Button
+Button   Button
 ```
+
+The grid automatically uses fewer columns on narrow displays.
+
+---
+
+# Spacing
+
+Containers support spacing between widgets:
+
+```python
+container = Container(
+    layout="vertical",
+    spacing=4
+)
+```
+
+Widgets also support:
+
+```python
+widget.gap_before = 2
+widget.gap_after = 2
+```
+
+This can be useful when creating clearer groups of controls.
 
 ---
 
 # ScrollView
 
-For large interfaces, use `ScrollView`.
+`ScrollView` is designed for content that is larger than the available display area.
 
 ```python
 scroll = ScrollView()
 
 home.set_content(scroll)
+```
 
+Add widgets:
+
+```python
 scroll.add(
-    Button("WiFi")
+    Label("Network Settings")
 )
 
 scroll.add(
-    Button("Bluetooth")
+    Toggle("WiFi")
 )
 
 scroll.add(
-    Button("Settings")
+    Toggle("Bluetooth")
 )
 
 scroll.add(
-    Button("About")
+    Slider("Brightness", 80)
+)
+
+scroll.add(
+    Button("Save")
 )
 ```
 
-The content can extend beyond the display.
+The content can extend beyond the physical display.
 
-ESPUI automatically handles scrolling and the scrollbar.
+ESPUI calculates virtual widget positions and clips the content to the ScrollView viewport. A scrollbar is displayed automatically when necessary.
 
-You can also control scrolling manually:
+---
+
+# Manual Scrolling
+
+Scroll down:
 
 ```python
 scroll.scroll_down()
 ```
 
+Scroll up:
+
 ```python
 scroll.scroll_up()
 ```
 
-Or:
+Scroll by a custom amount:
 
 ```python
 scroll.scroll_by(10)
 ```
 
----
-
-# Header, Footer and Sidebar
-
-## Header
+Move to an exact position:
 
 ```python
-home.header("Network")
+scroll.scroll_to(20)
 ```
 
-## Footer
+The scroll position is automatically limited to the valid content range.
+
+---
+
+# Focus System
+
+ESPUI has a built-in focus system for interactive widgets.
+
+Focusable widgets include:
+
+```text
+Button
+Toggle
+Checkbox
+Slider
+```
+
+The screen automatically collects focusable widgets, maintains a focus index, and calls the widget's `focus()` / `blur()` methods.
+
+Move focus:
+
+```text
+2 → Previous
+8 → Next
+```
+
+The focused widget can also request automatic scrolling when it is outside the visible area.
+
+---
+
+# Keyboard Mapping
+
+The default 4×4 keypad is mapped to UI actions as follows:
+
+| Key | Action |
+| --- | ------ |
+| `2` | UP     |
+| `8` | DOWN   |
+| `4` | LEFT   |
+| `6` | RIGHT  |
+| `A` | OK     |
+| `#` | OK     |
+| `B` | BACK   |
+| `*` | BACK   |
+| `C` | MENU   |
+
+The mapping is implemented by `UI.map_key()`.
+
+---
+
+# Screen Navigation
+
+ESPUI includes a simple navigation stack.
+
+Create screens:
 
 ```python
-home.footer(
-    "2/8 Navigate   A Select   B Back"
+home = Screen("Home")
+settings = Screen("Settings")
+```
+
+Navigate to Settings:
+
+```python
+button.on(
+    Event.CLICK,
+    lambda: ui.push(settings)
 )
 ```
 
-## Sidebar
+Go back:
+
+```python
+ui.back()
+```
+
+The previous screen is stored in the navigation stack.
+
+---
+
+# Replace Current Screen
+
+You can directly switch screens without pushing the current screen onto the navigation stack:
+
+```python
+ui.show(settings)
+```
+
+Use:
+
+```python
+ui.push(settings)
+```
+
+when you want `BACK` to return to the previous screen.
+
+Use:
+
+```python
+ui.show(settings)
+```
+
+when you want to replace the current screen.
+
+---
+
+# Sidebar
+
+A screen can have a sidebar:
 
 ```python
 home.sidebar([
@@ -494,6 +802,137 @@ home.sidebar([
     "About"
 ])
 ```
+
+Sidebar items can also contain targets:
+
+```python
+home.sidebar([
+    ("Home", home),
+    ("Settings", settings)
+])
+```
+
+A dictionary can also be used:
+
+```python
+home.sidebar([
+    {
+        "label": "Home",
+        "target": home
+    },
+    {
+        "label": "Settings",
+        "target": settings
+    }
+])
+```
+
+The sidebar has its own focus state and scrolling system. LEFT enters the sidebar and RIGHT returns to content navigation.
+
+---
+
+# Notifications
+
+Display a temporary notification:
+
+```python
+home.notify(
+    "WiFi selected"
+)
+```
+
+Custom duration:
+
+```python
+home.notify(
+    "Saved!",
+    duration=3000
+)
+```
+
+The duration is specified in milliseconds.
+
+---
+
+# Dialogs
+
+Show a dialog:
+
+```python
+home.show_dialog(
+    "Warning",
+    "Are you sure?"
+)
+```
+
+Close it:
+
+```python
+home.close_dialog()
+```
+
+When a dialog is visible, it receives priority over normal screen navigation. `OK` and `BACK` close the dialog.
+
+---
+
+# Events
+
+ESPUI provides a simple event emitter.
+
+Register an event:
+
+```python
+button.on(
+    Event.CLICK,
+    my_function
+)
+```
+
+Available event constants include:
+
+```text
+KEY_PRESS
+KEY_RELEASE
+KEY_HOLD
+KEY_REPEAT
+
+CLICK
+CHANGE
+
+FOCUS
+BLUR
+
+UP
+DOWN
+LEFT
+RIGHT
+
+OK
+BACK
+MENU
+
+SIDEBAR_FOCUS
+SIDEBAR_BLUR
+SIDEBAR_CHANGE
+SIDEBAR_SELECT
+```
+
+The event system is shared by the UI core and widgets.
+
+---
+
+# Global UI Events
+
+The `UI` object also has an event emitter:
+
+```python
+ui.on(
+    "ui_key",
+    lambda key: print("Key:", key)
+)
+```
+
+This can be useful for application-level input handling.
 
 ---
 
@@ -506,9 +945,9 @@ import ssd1306
 from espui import *
 
 
-# -------------------------
-# Display
-# -------------------------
+# ============================================================
+# DISPLAY
+# ============================================================
 
 i2c = I2C(
     0,
@@ -529,9 +968,9 @@ display = Display(
 )
 
 
-# -------------------------
-# Keypad
-# -------------------------
+# ============================================================
+# KEYPAD
+# ============================================================
 
 keypad = Keypad4x4(
     rows=[13, 12, 14, 27],
@@ -539,11 +978,11 @@ keypad = Keypad4x4(
 )
 
 
-# -------------------------
+# ============================================================
 # UI
-# -------------------------
+# ============================================================
 
-ui = UI()
+ui = UI(fps=20)
 
 ui.begin(
     display=display,
@@ -551,77 +990,138 @@ ui.begin(
 )
 
 
-# -------------------------
-# Home
-# -------------------------
+# ============================================================
+# SCREENS
+# ============================================================
 
 home = Screen("Home")
+settings = Screen("Settings")
+
 
 home.header("ESP32 Control")
 home.footer("2/8 Move   A OK   B Back")
 
-scroll = ScrollView()
-
-home.set_content(scroll)
-
-
-# -------------------------
-# Settings
-# -------------------------
-
-settings = Screen("Settings")
-
 settings.header("Settings")
 settings.footer("B Back")
 
-settings_scroll = ScrollView()
 
-settings.set_content(settings_scroll)
+# ============================================================
+# HOME CONTENT
+# ============================================================
 
-settings_scroll.add(
-    Toggle("WiFi", True)
+home_scroll = ScrollView()
+
+home.set_content(
+    home_scroll
 )
-
-settings_scroll.add(
-    Toggle("Bluetooth", False)
-)
-
-settings_scroll.add(
-    Slider("Volume", 50)
-)
-
-
-# -------------------------
-# Home Widgets
-# -------------------------
 
 wifi_button = Button("WiFi")
 settings_button = Button("Settings")
 
-scroll.add(wifi_button)
-scroll.add(settings_button)
-scroll.add(Checkbox("Debug Mode"))
-scroll.add(Slider("Brightness", 80))
+debug = Checkbox("Debug Mode")
+brightness = Slider(
+    "Brightness",
+    80
+)
+
+home_scroll.add(
+    Label("System Control")
+)
+
+home_scroll.add(
+    wifi_button
+)
+
+home_scroll.add(
+    settings_button
+)
+
+home_scroll.add(
+    debug
+)
+
+home_scroll.add(
+    brightness
+)
 
 
-# -------------------------
-# Navigation
-# -------------------------
+# ============================================================
+# SETTINGS CONTENT
+# ============================================================
+
+settings_scroll = ScrollView()
+
+settings.set_content(
+    settings_scroll
+)
+
+wifi = Toggle(
+    "WiFi",
+    True
+)
+
+bluetooth = Toggle(
+    "Bluetooth",
+    False
+)
+
+volume = Slider(
+    "Volume",
+    50
+)
+
+settings_scroll.add(
+    Label("Settings")
+)
+
+settings_scroll.add(
+    wifi
+)
+
+settings_scroll.add(
+    bluetooth
+)
+
+settings_scroll.add(
+    volume
+)
+
+
+# ============================================================
+# EVENTS
+# ============================================================
+
+wifi_button.on(
+    Event.CLICK,
+    lambda: home.notify(
+        "WiFi selected"
+    )
+)
 
 settings_button.on(
     Event.CLICK,
     lambda: ui.push(settings)
 )
 
-wifi_button.on(
-    Event.CLICK,
-    lambda: home.notify("WiFi selected")
+wifi.on(
+    Event.CHANGE,
+    lambda value: home.notify(
+        "WiFi: {}".format(value)
+    )
+)
+
+volume.on(
+    Event.CHANGE,
+    lambda value: print(
+        "Volume:",
+        value
+    )
 )
 
 
-# -------------------------
-# Start
-# -------------------------
+# ============================================================
+# START
+# ============================================================
 
 ui.show(home)
 ui.run()
@@ -629,176 +1129,347 @@ ui.run()
 
 ---
 
-# Key Mapping
+# Architecture
 
-The default keypad mapping is:
+ESPUI is organized into several layers:
 
-| Key       | Action |
-| --------- | ------ |
-| `2`       | Up     |
-| `8`       | Down   |
-| `4`       | Left   |
-| `6`       | Right  |
-| `A` / `#` | OK     |
-| `B` / `*` | Back   |
-| `C`       | Menu   |
+```text
+┌───────────────────────────┐
+│       Application         │
+├───────────────────────────┤
+│          Screen           │
+├───────────────────────────┤
+│        Containers         │
+├───────────────────────────┤
+│          Widgets          │
+├───────────────────────────┤
+│        UI / Events        │
+├───────────────────────────┤
+│    Display / Controller   │
+├───────────────────────────┤
+│         Hardware          │
+└───────────────────────────┘
+```
 
-This mapping can be extended or changed as the framework evolves.
+### Core classes
+
+```text
+Event
+EventEmitter
+Display
+Keypad4x4
+Widget
+Container
+ScrollView
+Label
+Button
+Toggle
+Checkbox
+Slider
+ProgressBar
+Separator
+Dialog
+Screen
+UI
+```
+
+This structure keeps hardware handling, UI logic, layout, widgets and application code separated.
+
+---
+
+# Display Abstraction
+
+The `Display` class provides a common interface around the MicroPython display driver.
+
+Main operations include:
+
+```python
+display.clear()
+display.show()
+
+display.pixel(...)
+display.line(...)
+display.rect(...)
+display.fill_rect(...)
+
+display.text(...)
+display.text_clipped(...)
+
+display.hline(...)
+display.vline(...)
+```
+
+It also supports nested clipping regions:
+
+```python
+display.push_clip(
+    x,
+    y,
+    width,
+    height
+)
+
+# Draw content
+
+display.pop_clip()
+```
+
+This is especially important for ScrollView and screen content.
+
+---
+
+# Text Handling
+
+ESPUI includes several text utilities.
+
+Fit text:
+
+```python
+display.fit_text(
+    "Very long text",
+    80
+)
+```
+
+Wrap text:
+
+```python
+display.wrap_text(
+    "This is a long sentence",
+    80
+)
+```
+
+Clipped text:
+
+```python
+display.text_clipped(
+    "Hello ESP32",
+    0,
+    20,
+    width=100
+)
+```
+
+Text can be aligned:
+
+```python
+align="left"
+align="center"
+align="right"
+```
+
+Long text can automatically use an ellipsis:
+
+```text
+This is a very...
+```
+
+---
+
+# Custom Widgets
+
+ESPUI is designed to be extendable.
+
+A custom widget can inherit from `Widget`:
+
+```python
+class MyWidget(Widget):
+
+    def __init__(self):
+        super().__init__(
+            height=14
+        )
+
+    def draw(self, display):
+        display.rect(
+            self.x,
+            self.y,
+            self.width,
+            self.height
+        )
+```
+
+Then add it to a screen:
+
+```python
+home.add(
+    MyWidget()
+)
+```
+
+For an interactive widget, enable focus:
+
+```python
+self.focusable = True
+```
+
+and implement:
+
+```python
+def handle_key(self, key):
+    ...
+```
+
+---
+
+# Performance
+
+ESPUI is designed for small embedded displays.
+
+The default UI loop runs at:
+
+```python
+UI(fps=20)
+```
+
+You can change it:
+
+```python
+ui = UI(fps=30)
+```
+
+Lower FPS can reduce CPU usage while higher FPS can make animations and input feel more responsive.
+
+For small OLED interfaces, keeping the UI simple and avoiding unnecessarily expensive operations is recommended.
 
 ---
 
 # Project Structure
 
-The current project can remain very simple:
+A minimal ESPUI project:
 
 ```text
-ESPUI/
-├── espui.py
-├── ssd1306.py
+ESP32/
+│
+├── boot.py
 ├── main.py
-└── README.md
+├── espui.py
+└── ssd1306.py
 ```
 
-The goal is to eventually separate the framework into modules as it grows.
+A larger application can be organized as:
+
+```text
+ESP32/
+│
+├── boot.py
+├── main.py
+├── espui.py
+├── ssd1306.py
+│
+├── screens/
+│   ├── home.py
+│   ├── settings.py
+│   └── network.py
+│
+└── app/
+    ├── config.py
+    └── events.py
+```
+
+For early development, keeping everything in `main.py` is perfectly fine.
 
 ---
 
-# Design Goals
+# Version 1.1
 
-ESPUI is being designed with the following goals:
+## Main capabilities
 
-### Simple
+ESPUI 1.1 provides:
 
-An application developer should be able to create a UI without manually handling:
-
-* OLED coordinates
-* Drawing operations
-* Keypad scanning
-* Focus movement
-* Scrolling
-* Screen management
-
-### Lightweight
-
-ESP32 devices have limited RAM and processing power.
-
-ESPUI is designed to stay lightweight and suitable for MicroPython.
-
-### Modular
-
-Hardware and UI logic should remain separated.
-
-### Extensible
-
-The framework is intended to grow beyond OLED + keypad.
-
-Possible future controllers:
-
-```text
-Matrix Keypad
-Rotary Encoder
-Buttons
-Touchscreen
-Joystick
-Gamepad
-```
-
-Possible future displays:
-
-```text
-SSD1306
-SH1106
-LCD
-TFT
-Color Displays
-```
+* Display abstraction
+* Text clipping
+* Text fitting
+* Text wrapping
+* 4×4 keypad input
+* Key press / release / hold / repeat
+* Screens
+* Screen navigation
+* Navigation stack
+* Focus management
+* Nested containers
+* Vertical layout
+* Horizontal layout
+* Grid layout
+* ScrollView
+* Automatic scrollbar
+* Header
+* Footer
+* Sidebar
+* Notifications
+* Dialogs
+* Buttons
+* Toggles
+* Checkboxes
+* Sliders
+* Progress bars
+* Labels
+* Separators
+* Event callbacks
 
 ---
 
 # Roadmap
 
-## UI
+Planned improvements include:
 
-* [x] Screens
-* [x] Widgets
-* [x] Containers
-* [x] Basic layouts
-* [x] ScrollView
-* [x] Focus system
-* [x] Navigation stack
-* [x] Header
-* [x] Footer
-* [x] Basic sidebar
-* [ ] Interactive sidebar
-* [ ] ListView
-* [ ] Dropdown / Select
-* [ ] TextInput
-* [ ] Virtual keyboard
-* [ ] Icons
-* [ ] Custom fonts
-* [ ] Themes
-* [ ] Animations
-
-## Hardware
-
-* [x] SSD1306 support through display abstraction
-* [x] Matrix keypad
-* [ ] Rotary encoder
-* [ ] Touch input
-* [ ] More OLED drivers
-* [ ] TFT displays
-
-## Application System
-
-* [ ] App manager
-* [ ] Application launcher
-* [ ] Window system
-* [ ] Settings system
-* [ ] Plugin/API system
-* [ ] Multi-app management
-
-## ESP32 OS
-
-The long-term goal is to use ESPUI as the foundation for a lightweight ESP32 operating environment.
-
-```text
-ESP32
- │
- ├── Hardware Drivers
- │
- ├── ESPUI
- │
- ├── System Services
- │
- ├── App Manager
- │
- └── Applications
-```
+* More widgets
+* Better focus visualization
+* Improved nested scrolling
+* More layout options
+* More display-driver compatibility
+* Touchscreen input
+* Additional input controllers
+* Theme system
+* Better animations
+* More advanced dialogs
+* More powerful navigation
+* Improved documentation
+* Examples for common ESP32 projects
+* Modular package structure
 
 ---
 
 # Contributing
 
-Contributions, ideas, bug reports, and feature suggestions are welcome.
+ESPUI is an experimental project and is still evolving.
 
-If you find a problem, please open an issue with:
+Ideas, bug reports, improvements and new widgets are welcome.
 
-1. ESP32 board model
-2. MicroPython version
-3. Display/controller used
-4. Minimal example
-5. Error message or unexpected behavior
+When contributing, try to keep the framework:
+
+* Lightweight
+* Simple
+* MicroPython-friendly
+* Memory efficient
+* Easy to understand
+* Suitable for small displays
 
 ---
 
 # License
 
-License information will be added as the project develops.
+See the repository for the current license information.
 
 ---
 
-## Status
+# Repository
 
-**Early Development / Experimental**
+**ESPUI**
 
-The API may change significantly before the first stable release.
+GitHub:
+
+https://github.com/amirmc132/espui
+
+Main source:
+
+`espui.py`
+
+---
+
+## Author
+
+Created by **amirmc132**.
+
+ESPUI is intended to make building embedded graphical interfaces with ESP32 + MicroPython easier while keeping the framework small and customizable.
